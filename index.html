@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drives de Materiais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: '#141A17',
+              bone: '#ECEBE3',
+              sand: '#D4D2C6',
+              forest: '#1F3A2E',
+              stone: '#767469',
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              serif: ['Playfair Display', 'serif'],
+            },
+            screens: {
+              'xs': '475px',
+            }
+          }
+        }
+      }
+    </script>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+<style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.1);
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0,0,0,0.2);
+    }
+    
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    
+    @media print {
+        body {
+            background-color: #ffffff !important;
+        }
+        .printable-section {
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        
+        div[aria-modal="true"] {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            background: white !important;
+            z-index: 999999 !important;
+            display: block !important;
+        }
+        
+        div[aria-modal="true"] > div {
+            box-shadow: none !important;
+            border: none !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            transform: none !important;
+        }
+    }
+        .printable-section {
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        
+        /* When a modal is open, it has aria-modal="true" and we want to hide everything else on print */
+        body:has(div[aria-modal="true"]) > div#root > *:not(div[aria-modal="true"]) {
+            display: none !important;
+        }
+    }
+        .printable-section {
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+    }
+
+    /* High Contrast Mode Overrides */
+    html.high-contrast, html.high-contrast body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    html.high-contrast * {
+        border-color: #000000 !important;
+    }
+    
+    html.high-contrast .text-stone, 
+    html.high-contrast .text-ink,
+    html.high-contrast .text-forest {
+        color: #000000 !important;
+    }
+    
+    html.high-contrast .bg-bone, 
+    html.high-contrast .bg-sand, 
+    html.high-contrast .bg-transparent {
+        background-color: #ffffff !important;
+    }
+    
+    html.high-contrast .bg-forest,
+    html.high-contrast .bg-ink {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+    }
+    
+    html.high-contrast .bg-forest *,
+    html.high-contrast .bg-ink * {
+        color: #ffffff !important;
+    }
+</style>
+
+</head>
+<body class="min-h-screen bg-bone text-ink relative overflow-x-hidden antialiased selection:bg-sand selection:text-ink">
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
