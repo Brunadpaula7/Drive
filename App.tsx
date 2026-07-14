@@ -53,7 +53,7 @@ const App = () => {
     });
     const [coverPhotoUrl, setCoverPhotoUrl] = useState<string>(() => {
         try {
-            const stored = localStorage.getItem('coverPhotoUrl');
+            const stored = localStorage.getItem('coverPhotoUrl_v2');
             if (stored) return JSON.parse(stored);
         } catch (e) {}
         return initialCoverPhotoUrl;
@@ -158,10 +158,21 @@ const App = () => {
                     let bathrooms = getTagContent('QtdBanheiros') || getTagContent('Bathrooms');
                     let parking = getTagContent('QtdVagas') || getTagContent('Garage');
                     
-                    let price = getTagContent('PrecoVenda') || getTagContent('ListPrice');
+                    let price = getTagContent('PrecoVenda') || getTagContent('ListPrice') || getTagContent('RentalPrice');
                     if (price && !price.startsWith('R$')) price = 'R$ ' + Number(price).toLocaleString('pt-BR');
-                    
+
+                    let operacao = getTagContent('TipoOferta') || getTagContent('TransactionType');
+                    if (operacao === 'For Sale') operacao = 'Venda';
+                    if (operacao === 'For Rent') operacao = 'Locação';
+
                     let condominio = getTagContent('ValorCondominio') || getTagContent('PropertyAdministrationFee');
+
+                    let features: string[] = [];
+                    let featuresNode = imovel.getElementsByTagName('Features')[0];
+                    if (featuresNode) {
+                        features = Array.from(featuresNode.getElementsByTagName('Feature')).map(f => f.textContent?.trim()).filter(Boolean) as string[];
+                    }
+                    
                     let iptu = getTagContent('ValorIPTU') || getTagContent('Iptu');
                     
                     let description = getTagContent('Observacao') || getTagContent('Description');
@@ -184,7 +195,7 @@ const App = () => {
                         id: `${job}-${jt}-${Math.random()}`,
                         job, jt, property, agents, raw, locationDetails, area, areaTotal,
                         quartos, suites, salas, bathrooms, parking, price, condominio, iptu,
-                        description, photos, url
+                        description, photos, url, features, operacao, tipo
                     };
                 });
             } catch (e) {}
@@ -290,7 +301,7 @@ const App = () => {
                 onSaveLaunches={(data) => { setLaunchesData(data); saveData('launchesData', data); }}
                 onSaveRawJobs={(data) => { setRawJobData(data); saveData('rawJobData', data); }}
                 onSaveJetimoveisUrl={(url) => { setJetimoveisUrl(url); saveData('jetimoveisUrl_v2', url); }}
-                onSaveCoverPhoto={(url) => { setCoverPhotoUrl(url); saveData('coverPhotoUrl', url); }}
+                onSaveCoverPhoto={(url) => { setCoverPhotoUrl(url); saveData('coverPhotoUrl_v2', url); }}
                 onEditLogo={(logo, section, cityId) => setEditingLogo({ logo, section, cityId })}
                 onDeleteLogo={(logoId, section, cityId) => {
                     if (section === 'incorporadoras') {

@@ -3166,4 +3166,4 @@ export const initialPipelineData: PipelineMonth[] = [
 ];
 export const initialInfoBoardData: InfoBoardData = { rodadas: [], meeting: [], lancamentos: [] };
 export const initialJetimoveisUrl: string = "https://script.google.com/macros/s/AKfycbxTWTAxLi09SbU_mXHtza3KJaL6plET1O9OGrK0hkpY_bNK8HVCfGrezpgy1EwwVyNo/exec";
-export const initialCoverPhotoUrl: string = "https://placehold.co/1200x400/d1fae5/065f46?text=Materiais+%26+Drive";
+export const initialCoverPhotoUrl: string = "https://i.ibb.co/gLFs8xyx/Captura-de-tela-2026-07-14-114757.jpg";
