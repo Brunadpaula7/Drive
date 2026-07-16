@@ -11,6 +11,121 @@ interface JobSectionProps {
 
 const JOBS_PER_PAGE = 12;
 
+const featureTranslations: Record<string, string> = {
+    'cooling': 'Ar Condicionado',
+    'air conditioning': 'Ar Condicionado',
+    "maid's quarters": 'Dependência de Empregada',
+    "maid quarters": 'Dependência de Empregada',
+    'kitchen cabinets': 'Armários na Cozinha',
+    'builtin wardrobe': 'Armários Embutidos',
+    'built-in wardrobe': 'Armários Embutidos',
+    'wardrobe': 'Armários Embutidos',
+    'tv security': 'Câmeras de Segurança (CFTV)',
+    'kitchen': 'Cozinha',
+    'american kitchen': 'Cozinha Americana',
+    'cooker': 'Fogão',
+    'utilities': 'Área de Serviço',
+    'intercom': 'Interfone',
+    'lavabo': 'Lavabo',
+    'furnished': 'Mobiliado',
+    'close to schools': 'Próximo a Escolas',
+    'close to shopping centers': 'Próximo a Shoppings',
+    'close to public transportation': 'Próximo ao Transporte Público',
+    'close to main roads/avenues': 'Próximo a Vias Principais',
+    'cold floor': 'Piso Frio',
+    'close to hospitals': 'Próximo a Hospitais',
+    'balcony': 'Varanda / Sacada',
+    'living room': 'Sala de Estar',
+    'dining room': 'Sala de Jantar',
+    'wall balcony': 'Varanda',
+    'gourmet balcony': 'Varanda Gourmet',
+    'gym': 'Academia',
+    'disabled access': 'Acessibilidade',
+    'administration': 'Administração do Condomínio',
+    'garden area': 'Área Verde / Jardim',
+    'recreation area': 'Área de Lazer',
+    'green space / park': 'Área Verde / Parque',
+    'green space': 'Área Verde',
+    'park': 'Parque',
+    'bicycles place': 'Bicicletário',
+    'toys place': 'Brinquedoteca',
+    'alarm system': 'Sistema de Alarme',
+    'bbq': 'Churrasqueira',
+    'barbecue': 'Churrasqueira',
+    'fenced yard': 'Quintal Cercado',
+    'gourmet kitchen': 'Cozinha Gourmet',
+    'elevator': 'Elevador',
+    'side entrance': 'Entrada Lateral',
+    'gourmet area': 'Espaço Gourmet',
+    'beauty center': 'Espaço Beleza',
+    'reflective pool': 'Espelho d\'Água',
+    'parking places': 'Vagas de Garagem',
+    'parking garage': 'Garagem Coberta',
+    'guest parking': 'Vagas de Visitantes',
+    'paved street': 'Rua Pavimentada',
+    'pizza oven': 'Forno de Pizza',
+    'generator': 'Gerador',
+    'armored security cabin': 'Guarita Blindada',
+    'entrance hall': 'Hall de Entrada',
+    'home office': 'Home Office / Escritório',
+    'internet connection': 'Conexão à Internet',
+    'reception room': 'Salão de Festas',
+    'square': 'Praça',
+    'pets allowed': 'Permite Pets',
+    'pet space': 'Espaço Pet',
+    'pool': 'Piscina',
+    'heated pool': 'Piscina Aquecida',
+    'covered pool': 'Piscina Coberta',
+    'wading pool': 'Piscina Infantil',
+    'playground': 'Playground',
+    'electronic gate': 'Portão Eletrônico',
+    'concierge 24h': 'Portaria 24h',
+    'doorman': 'Porteiro 24h',
+    'water view': 'Vista para Lago / Rio',
+    'sports court': 'Quadra Poliesportiva',
+    'squash': 'Quadra de Squash',
+    'water tank': 'Reservatório de Água',
+    'fitness room': 'Sala de Ginástica',
+    'meeting room': 'Sala de Reuniões',
+    'beauty room': 'Salão de Beleza',
+    'party room': 'Salão de Festas',
+    'game room': 'Salão de Jogos',
+    'sauna': 'Sauna',
+    'security guard on duty': 'Vigilância 24h',
+    'fire alarm': 'Alarme de Incêndio',
+    'spa': 'Spa / Hidromassagem',
+    'cable t': 'TV a Cabo'
+};
+
+const translateAndFilterFeatures = (features: any): string[] => {
+    if (!Array.isArray(features)) return [];
+    
+    const result: string[] = [];
+    const seen = new Set<string>();
+
+    features.forEach((feature) => {
+        if (!feature) return;
+        const normalized = String(feature).trim().toLowerCase();
+        
+        // Find translation or fall back to original
+        let translated = featureTranslations[normalized];
+        if (!translated) {
+            // Check if feature is already in Portuguese, capitalize it
+            const rawVal = String(feature).trim();
+            translated = rawVal.charAt(0).toUpperCase() + rawVal.slice(1);
+        }
+
+        // Avoid duplicate translations or items like "Cooker" (usually excluded as we have Gourmet features, but if present it's okay)
+        // Ensure we deduplicate beautifully
+        if (translated && !seen.has(translated.toLowerCase())) {
+            seen.add(translated.toLowerCase());
+            result.push(translated);
+        }
+    });
+
+    return result;
+};
+
 const JobDetailContent: React.FC<{ job: Job }> = ({ job }) => {
     const photos = Array.isArray(job.photos) ? job.photos.filter(p => typeof p === 'string') : [];
     const [activePhoto, setActivePhoto] = useState<string | null>(photos.length > 0 ? photos[0] : null);
@@ -19,6 +134,10 @@ const JobDetailContent: React.FC<{ job: Job }> = ({ job }) => {
         const newPhotos = Array.isArray(job.photos) ? job.photos.filter(p => typeof p === 'string') : [];
         setActivePhoto(newPhotos.length > 0 ? newPhotos[0] : null);
     }, [job]);
+
+    const translatedFeatures = useMemo(() => {
+        return translateAndFilterFeatures(job.features);
+    }, [job.features]);
 
     return (
         <div className="flex flex-col lg:flex-row gap-8">
@@ -154,13 +273,13 @@ const JobDetailContent: React.FC<{ job: Job }> = ({ job }) => {
                     </div>
                 </div>
 
-                {Array.isArray(job.features) && job.features.length > 0 && (
+                {translatedFeatures.length > 0 && (
                     <div className="bg-white p-6 rounded-2xl border border-sand/50 shadow-sm">
                         <p className="text-[11px] font-bold text-stone uppercase tracking-wider mb-3">Características</p>
                         <div className="flex flex-wrap gap-2">
-                            {job.features.map((feature, idx) => (
+                            {translatedFeatures.map((feature, idx) => (
                                 <span key={idx} className="bg-sand/30 text-ink px-3 py-1 rounded-full text-xs font-medium border border-sand">
-                                    {String(feature)}
+                                    {feature}
                                 </span>
                             ))}
                         </div>
@@ -173,12 +292,6 @@ const JobDetailContent: React.FC<{ job: Job }> = ({ job }) => {
                             Ver Imóvel no Site
                         </a>
                      )}
-                     <button onClick={() => window.print()} className="w-full flex justify-center items-center bg-white hover:bg-bone text-ink py-3.5 px-6 rounded-xl text-base font-bold shadow-sm transition-all border border-sand">
-                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 mr-2">
-                             <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0v-2.94a2.25 2.25 0 0 1 2.25-2.25h6a2.25 2.25 0 0 1 2.25 2.25v2.94ZM15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                         </svg>
-                         Imprimir Ficha
-                     </button>
                 </div>
             </div>
         </div>

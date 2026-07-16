@@ -281,26 +281,26 @@ export const CertidoesSection: React.FC = () => {
                     <div className="flex space-x-2 flex-shrink-0 w-full md:w-auto print:hidden">
                         <button 
                             onClick={() => toggleStatus(item.id, 'negativa')}
-                            className={`flex-1 md:flex-none flex items-center justify-center space-x-1 px-4 py-2 text-sm font-bold rounded-xl border transition-colors \${
+                            className={`flex-1 md:flex-none flex items-center justify-center space-x-1 px-4 py-2 text-sm font-bold rounded-xl border transition-colors ${
                                 status === 'negativa' 
                                 ? 'bg-forest text-white border-forest shadow-md' 
                                 : 'bg-zinc-200 text-zinc-900 border-zinc-300 hover:bg-zinc-300 font-bold'
                             }`}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transition-colors \${status === 'negativa' ? 'text-white' : 'text-ink/60'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transition-colors ${status === 'negativa' ? 'text-white' : 'text-ink/60'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                             <span>NADA CONSTA</span>
                         </button>
                         <button 
                             onClick={() => toggleStatus(item.id, 'positiva')}
-                            className={`flex-1 md:flex-none flex items-center justify-center space-x-1 px-4 py-2 text-sm font-bold rounded-xl border transition-colors \${
+                            className={`flex-1 md:flex-none flex items-center justify-center space-x-1 px-4 py-2 text-sm font-bold rounded-xl border transition-colors ${
                                 status === 'positiva' 
                                 ? 'bg-red-600 text-white border-red-700 shadow-md' 
                                 : 'bg-zinc-200 text-zinc-900 border-zinc-300 hover:bg-zinc-300 font-bold'
                             }`}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transition-colors \${status === 'positiva' ? 'text-white' : 'text-ink/60'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transition-colors ${status === 'positiva' ? 'text-white' : 'text-ink/60'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                             <span>PENDÊNCIA</span>
@@ -354,7 +354,7 @@ export const CertidoesSection: React.FC = () => {
                     viewBox="0 0 24 24" 
                     strokeWidth={2} 
                     stroke="currentColor" 
-                    className={`w-6 h-6 text-sand group-hover:text-ink transition-transform duration-300 \${isOpen ? 'rotate-180' : ''}`}
+                    className={`w-6 h-6 text-sand group-hover:text-ink transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
                 >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                 </svg>
@@ -378,19 +378,19 @@ export const CertidoesSection: React.FC = () => {
 
                     <div className="flex border-b border-sand mb-6 print:hidden overflow-x-auto hide-scrollbar">
                         <button 
-                            className={`py-3 px-6 text-sm font-bold rounded-t-lg whitespace-nowrap border-b-2 transition-colors \${activeTab === 'PF' ? 'bg-forest text-white font-black shadow-md border-none' : 'bg-zinc-300 text-zinc-800 hover:bg-zinc-400 border-none'}`}
+                            className={`py-3 px-6 text-sm font-bold rounded-t-lg whitespace-nowrap border-b-2 transition-colors ${activeTab === 'PF' ? 'bg-forest text-white font-black shadow-md border-none' : 'bg-zinc-300 text-zinc-800 hover:bg-zinc-400 border-none'}`}
                             onClick={() => setActiveTab('PF')}
                         >
                             Pessoa Física (CPF)
                         </button>
                         <button 
-                            className={`py-3 px-6 text-sm font-bold rounded-t-lg whitespace-nowrap border-b-2 transition-colors \${activeTab === 'PJ' ? 'bg-forest text-white font-black shadow-md border-none' : 'bg-zinc-300 text-zinc-800 hover:bg-zinc-400 border-none'}`}
+                            className={`py-3 px-6 text-sm font-bold rounded-t-lg whitespace-nowrap border-b-2 transition-colors ${activeTab === 'PJ' ? 'bg-forest text-white font-black shadow-md border-none' : 'bg-zinc-300 text-zinc-800 hover:bg-zinc-400 border-none'}`}
                             onClick={() => setActiveTab('PJ')}
                         >
                             Pessoa Jurídica (CNPJ)
                         </button>
                         <button 
-                            className={`py-3 px-6 text-sm font-bold rounded-t-lg whitespace-nowrap border-b-2 transition-colors \${activeTab === 'Imovel' ? 'bg-forest text-white font-black shadow-md border-none' : 'bg-zinc-300 text-zinc-800 hover:bg-zinc-400 border-none'}`}
+                            className={`py-3 px-6 text-sm font-bold rounded-t-lg whitespace-nowrap border-b-2 transition-colors ${activeTab === 'Imovel' ? 'bg-forest text-white font-black shadow-md border-none' : 'bg-zinc-300 text-zinc-800 hover:bg-zinc-400 border-none'}`}
                             onClick={() => setActiveTab('Imovel')}
                         >
                             Certidões do Imóvel

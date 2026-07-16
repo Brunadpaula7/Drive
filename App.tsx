@@ -7,16 +7,32 @@ import { CertidoesSection } from './components/CertidoesSection';
 import { SalesLinksSection } from './components/SalesLinksSection';
 import { LaunchSection } from './components/LaunchSection';
 import { SettingsModal } from './components/SettingsModal';
-import { PrintReport } from './components/PrintReport';
 import { Modal } from './components/Modal';
 import { EditLogoModal } from './components/EditLogoModal';
 import { EditPipelineEventModal } from './components/EditPipelineEventModal';
+import { 
+  Building2, 
+  Search, 
+  Calendar, 
+  Link2, 
+  FileCheck, 
+  TrendingUp,
+  Sparkles,
+  User,
+  FolderOpen,
+  Table,
+  ExternalLink,
+  FileText,
+  Calculator
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import type { Job, LogoData, LaunchProject, PipelineMonth, InfoBoardData, CitySection, Logo, PipelineEvent } from './types';
 import { 
   initialIncorporadorasData, initialCidadesData, initialLaunchesData,
   initialRawJobData, initialPipelineData, initialInfoBoardData,
   initialJetimoveisUrl, initialCoverPhotoUrl 
 } from './constants';
+import { AgioCalculator } from './components/AgioCalculator';
 
 const App = () => {
     const loadData = <T,>(key: string, initial: T): T => {
@@ -33,7 +49,45 @@ const App = () => {
         } catch (e) {}
     };
 
-    const [incorporadorasData, setIncorporadorasData] = useState<LogoData>(loadData('incorporadorasData', initialIncorporadorasData));
+    const [incorporadorasData, setIncorporadorasData] = useState<LogoData>(() => {
+        const loaded = loadData('incorporadorasData', initialIncorporadorasData) as Logo[];
+        
+        // Ensure 'opus' is in the array with correct modalId and no href
+        const opusIndex = loaded.findIndex(item => item.id === 'opus');
+        if (opusIndex >= 0) {
+            loaded[opusIndex] = {
+                ...loaded[opusIndex],
+                href: undefined,
+                modalId: 'opus-modal'
+            };
+        } else {
+            loaded.unshift({
+                id: 'opus',
+                name: 'Opus',
+                imgSrc: 'https://placehold.co/100x100/d1fae5/065f46?text=Opus',
+                modalId: 'opus-modal'
+            });
+        }
+
+        // Ensure 'city' is in the array with correct modalId and no href
+        const cityIndex = loaded.findIndex(item => item.id === 'city');
+        if (cityIndex >= 0) {
+            loaded[cityIndex] = {
+                ...loaded[cityIndex],
+                href: undefined,
+                modalId: 'city-modal'
+            };
+        } else {
+            loaded.unshift({
+                id: 'city',
+                name: 'CITY',
+                imgSrc: 'https://placehold.co/100x100/d1fae5/065f46?text=CITY',
+                modalId: 'city-modal'
+            });
+        }
+
+        return loaded;
+    });
     const [cidadesData, setCidadesData] = useState<CitySection[]>(loadData('cidadesData', initialCidadesData));
     const [launchesData, setLaunchesData] = useState<LaunchProject[]>(loadData('launchesData', initialLaunchesData));
     const [pipelineData, setPipelineData] = useState<PipelineMonth[]>(loadData('pipelineData_v2', initialPipelineData));
@@ -54,7 +108,14 @@ const App = () => {
     const [coverPhotoUrl, setCoverPhotoUrl] = useState<string>(() => {
         try {
             const stored = localStorage.getItem('coverPhotoUrl_v2');
-            if (stored) return JSON.parse(stored);
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (parsed === "https://i.ibb.co/gLFs8xyx/Captura-de-tela-2026-07-14-114757.jpg") {
+                    localStorage.removeItem('coverPhotoUrl_v2');
+                    return initialCoverPhotoUrl;
+                }
+                return parsed;
+            }
         } catch (e) {}
         return initialCoverPhotoUrl;
     });
@@ -62,10 +123,17 @@ const App = () => {
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [globalSearch, setGlobalSearch] = useState('');
     const [isRefreshingJobs, setIsRefreshingJobs] = useState(false);
+    const [activeTab, setActiveTab] = useState<'revendas' | 'launches' | 'pipeline' | 'logos' | 'links' | 'certidoes' | 'agio'>(() => loadData('activeTab', 'links'));
+
+    const handleTabChange = (tab: 'revendas' | 'launches' | 'pipeline' | 'logos' | 'links' | 'certidoes' | 'agio') => {
+        setActiveTab(tab);
+        saveData('activeTab', tab);
+    };
 
     // Edit Modals State
     const [editingLogo, setEditingLogo] = useState<{ logo: Logo | null, section: 'incorporadoras' | 'cidades', cityId?: string } | null>(null);
     const [editingEvent, setEditingEvent] = useState<{ event: PipelineEvent | null, month: string, year: string } | null>(null);
+    const [activeLogoModalId, setActiveLogoModalId] = useState<string | null>(null);
 
     const parsedJobs = useMemo((): Job[] => {
         const data = rawJobData.trim();
@@ -226,6 +294,29 @@ const App = () => {
         }
     };
 
+    const revendasCount = parsedJobs.length;
+    const launchesCount = launchesData.length;
+    const pipelineCount = useMemo(() => {
+        return pipelineData.reduce((acc, item) => acc + item.events.length, 0);
+    }, [pipelineData]);
+
+    interface AppTab {
+        id: 'revendas' | 'launches' | 'pipeline' | 'logos' | 'links' | 'certidoes' | 'agio';
+        label: string;
+        icon: React.ReactNode;
+        count?: number;
+    }
+
+    const tabs: AppTab[] = [
+        { id: 'links', label: 'Links de Vendas', icon: <Link2 className="w-4 h-4" /> },
+        { id: 'revendas', label: 'Revendas (XML)', icon: <Search className="w-4 h-4" />, count: revendasCount },
+        { id: 'launches', label: 'Lançamentos', icon: <TrendingUp className="w-4 h-4" />, count: launchesCount },
+        { id: 'pipeline', label: 'Cronograma', icon: <Calendar className="w-4 h-4" />, count: pipelineCount },
+        { id: 'logos', label: 'Incorp. & Cidades', icon: <Building2 className="w-4 h-4" /> },
+        { id: 'agio', label: 'Cálculo de Ágio', icon: <Calculator className="w-4 h-4" /> },
+        { id: 'certidoes', label: 'Certidões', icon: <FileCheck className="w-4 h-4" /> },
+    ];
+
     return (
         <div className="p-4 md:p-8 font-sans min-h-screen relative">
             <div className="max-w-7xl mx-auto relative">
@@ -245,47 +336,90 @@ const App = () => {
                     />
                 </div>
                 
-                <div className="print:hidden mt-8">
-                    <JobSection 
-                        jobs={parsedJobs} 
-                        onRefresh={handleRefreshJobs} 
-                        isRefreshing={isRefreshingJobs} 
-                        globalSearch={globalSearch} 
-                    />
-                </div>
-
-                <div className="print:hidden mt-8">
-                    <LogoSection 
-                        title="Acesso Rápido - Incorporadoras e Construtoras"
-                        data={incorporadorasData}
-                        onLogoClick={() => {}}
-                        searchPlaceholder="Buscar por incorporadora ou construtora..."
-                        globalSearch={globalSearch}
-                    />
-                    <LogoSection 
-                        title="Acesso Rápido - Cidades"
-                        data={cidadesData}
-                        onLogoClick={() => {}}
-                        isCitySection={true}
-                        searchPlaceholder="Buscar por empreendimento ou cidade..."
-                        globalSearch={globalSearch}
-                    />
-                </div>
-
-                <div className="print:hidden mt-8">
-                    <PipelineCalendar data={pipelineData} />
-                    <div className="mt-8">
-                        <SalesLinksSection />
-                    </div>
-                    <div className="mt-8">
-                        <LaunchSection launches={launchesData} globalSearch={globalSearch} />
-                    </div>
-                    <div className="mt-8">
-                        <CertidoesSection />
+                {/* Navigation Tab Buttons */}
+                <div className="print:hidden mt-8 mb-6 border-b border-sand pb-6 flex items-center justify-between gap-4 flex-wrap">
+                    <div className="grid grid-cols-2 xs:grid-cols-3 lg:flex lg:flex-wrap gap-2 md:gap-3 w-full">
+                        {tabs.map((tab) => {
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => handleTabChange(tab.id)}
+                                    className={`flex items-center justify-center lg:justify-start gap-2.5 px-4 py-3 rounded-2xl text-xs md:text-sm font-semibold transition-all duration-300 border cursor-pointer select-none ${
+                                        isActive 
+                                        ? 'bg-forest text-white border-forest shadow-[0_4px_14px_rgba(31,58,46,0.2)]' 
+                                        : 'bg-white/50 hover:bg-sand/30 border-sand/40 text-stone hover:text-ink'
+                                    } transform active:scale-95`}
+                                >
+                                    {tab.icon}
+                                    <span>{tab.label}</span>
+                                    {tab.count !== undefined && (
+                                        <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] ${
+                                            isActive ? 'bg-white/20 text-white' : 'bg-sand text-stone font-bold'
+                                        }`}>
+                                            {tab.count}
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
-                <PrintReport jobs={parsedJobs} launches={launchesData} />
+                <div className="print:hidden mt-4 min-h-[400px]">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeTab}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -15 }}
+                            transition={{ duration: 0.25, ease: "easeInOut" }}
+                        >
+                            {activeTab === 'revendas' && (
+                                <JobSection 
+                                    jobs={parsedJobs} 
+                                    onRefresh={handleRefreshJobs} 
+                                    isRefreshing={isRefreshingJobs} 
+                                    globalSearch={globalSearch} 
+                                />
+                            )}
+                            {activeTab === 'launches' && (
+                                <LaunchSection launches={launchesData} globalSearch={globalSearch} />
+                            )}
+                            {activeTab === 'pipeline' && (
+                                <PipelineCalendar data={pipelineData} />
+                            )}
+                            {activeTab === 'logos' && (
+                                <div className="space-y-8">
+                                    <LogoSection 
+                                        title="Acesso Rápido - Incorporadoras e Construtoras"
+                                        data={incorporadorasData}
+                                        onLogoClick={(id) => setActiveLogoModalId(id)}
+                                        searchPlaceholder="Buscar por incorporadora ou construtora..."
+                                        globalSearch={globalSearch}
+                                    />
+                                    <LogoSection 
+                                        title="Acesso Rápido - Cidades"
+                                        data={cidadesData}
+                                        onLogoClick={(id) => setActiveLogoModalId(id)}
+                                        isCitySection={true}
+                                        searchPlaceholder="Buscar por empreendimento ou cidade..."
+                                        globalSearch={globalSearch}
+                                    />
+                                </div>
+                            )}
+                            {activeTab === 'links' && (
+                                <SalesLinksSection />
+                            )}
+                            {activeTab === 'agio' && (
+                                <AgioCalculator />
+                            )}
+                            {activeTab === 'certidoes' && (
+                                <CertidoesSection />
+                            )}
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
             </div>
 
             <SettingsModal 
@@ -383,6 +517,134 @@ const App = () => {
                         setEditingEvent(null);
                     }}
                 />
+            )}
+
+            {activeLogoModalId && (
+                <Modal 
+                    isOpen={true} 
+                    onClose={() => setActiveLogoModalId(null)} 
+                    title={
+                        activeLogoModalId === 'opus-modal' 
+                        ? "OPUS Incorporadora - Links e Materiais" 
+                        : activeLogoModalId === 'city-modal' 
+                        ? "City Soluções Urbanas - Links e Materiais" 
+                        : "Informações e Links Rápidos"
+                    }
+                >
+                    {activeLogoModalId === 'opus-modal' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-2">
+                            {[
+                                {
+                                    title: "OPUS Lançamento",
+                                    url: "https://beacons.ai/opuslancamento",
+                                    desc: "Materiais comerciais, books, imagens e tabelas de lançamentos mais recentes da OPUS.",
+                                    icon: <Building2 className="w-5 h-5 text-forest" />
+                                },
+                                {
+                                    title: "OPUS Marco Aurélio",
+                                    url: "https://beacons.ai/marcorelioopus",
+                                    desc: "Canal e materiais comerciais vinculados ao gestor Marco Aurélio (OPUS).",
+                                    icon: <User className="w-5 h-5 text-forest" />
+                                },
+                                {
+                                    title: "OPUS Premium",
+                                    url: "https://beacons.ai/opuspremium",
+                                    desc: "Materiais exclusivos de alto padrão para a carteira de imóveis OPUS Premium.",
+                                    icon: <Sparkles className="w-5 h-5 text-forest" />
+                                },
+                                {
+                                    title: "OPUS Denis Branco",
+                                    url: "https://beacons.ai/denisbranco",
+                                    desc: "Acesso a materiais comerciais e novidades sob gestão de Denis Branco (OPUS).",
+                                    icon: <User className="w-5 h-5 text-forest" />
+                                },
+                                {
+                                    title: "OPUS Saul Júnior",
+                                    url: "https://beacons.ai/sauljunior",
+                                    desc: "Acesso a materiais e contatos comerciais sob gestão de Saul Júnior (OPUS).",
+                                    icon: <User className="w-5 h-5 text-forest" />
+                                },
+                                {
+                                    title: "Portal do Corretor OPUS",
+                                    url: "https://portaldocorretor.opus.inc/login?redirectTo=https%3A%2F%2Fportaldocorretor.opus.inc%2F",
+                                    desc: "Portal oficial logado para corretores parceiros com tabelas e espelhos de vendas.",
+                                    icon: <Link2 className="w-5 h-5 text-forest" />
+                                }
+                            ].map((link, idx) => (
+                                <a
+                                    key={idx}
+                                    href={link.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-start p-5 bg-white rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 border border-sand/50 group"
+                                >
+                                    <div className="bg-sand/30 p-3 rounded-xl text-forest group-hover:bg-forest group-hover:text-white transition-colors mr-4 shrink-0">
+                                        {link.icon}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-1.5 mb-1">
+                                            <h3 className="text-base font-bold text-ink group-hover:text-forest transition-colors truncate">
+                                                {link.title}
+                                            </h3>
+                                            <ExternalLink className="w-4 h-4 text-stone/30 group-hover:text-forest transition-colors shrink-0" />
+                                        </div>
+                                        <p className="text-xs text-stone/80 leading-relaxed line-clamp-2">
+                                            {link.desc}
+                                        </p>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    )}
+                    {activeLogoModalId === 'city-modal' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-2">
+                            {[
+                                {
+                                    title: "Drive de Materiais City",
+                                    url: "https://drive.google.com/drive/folders/1wN5H6feWbW3hebFSSLw_Xstui74nOAp_?usp=sharing",
+                                    desc: "Pasta oficial no Google Drive com todos os materiais de divulgação, fotos e plantas.",
+                                    icon: <FolderOpen className="w-5 h-5 text-forest" />
+                                },
+                                {
+                                    title: "Tabela de Vendas City",
+                                    url: "https://www.city-solucoes.com/tabela-de-vendas",
+                                    desc: "Tabela oficial atualizada de preços e disponibilidades dos empreendimentos City.",
+                                    icon: <Table className="w-5 h-5 text-forest" />
+                                }
+                            ].map((link, idx) => (
+                                <a
+                                    key={idx}
+                                    href={link.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-start p-5 bg-white rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 border border-sand/50 group"
+                                >
+                                    <div className="bg-sand/30 p-3 rounded-xl text-forest group-hover:bg-forest group-hover:text-white transition-colors mr-4 shrink-0">
+                                        {link.icon}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-1.5 mb-1">
+                                            <h3 className="text-base font-bold text-ink group-hover:text-forest transition-colors truncate">
+                                                {link.title}
+                                            </h3>
+                                            <ExternalLink className="w-4 h-4 text-stone/30 group-hover:text-forest transition-colors shrink-0" />
+                                        </div>
+                                        <p className="text-xs text-stone/80 leading-relaxed line-clamp-2">
+                                            {link.desc}
+                                        </p>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    )}
+                    {activeLogoModalId !== 'opus-modal' && activeLogoModalId !== 'city-modal' && (
+                        <div className="p-8 text-center text-stone">
+                            <Link2 className="w-12 h-12 text-sand mx-auto mb-4" />
+                            <p className="text-lg font-bold text-ink mb-2">Materiais comerciais em breve</p>
+                            <p className="text-sm">Os links e arquivos para esta incorporadora serão cadastrados em breve por nossa equipe.</p>
+                        </div>
+                    )}
+                </Modal>
             )}
         </div>
     );

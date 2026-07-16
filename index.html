@@ -94,25 +94,6 @@
             transform: none !important;
         }
     }
-        .printable-section {
-            box-shadow: none !important;
-            border: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-        
-        /* When a modal is open, it has aria-modal="true" and we want to hide everything else on print */
-        body:has(div[aria-modal="true"]) > div#root > *:not(div[aria-modal="true"]) {
-            display: none !important;
-        }
-    }
-        .printable-section {
-            box-shadow: none !important;
-            border: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-    }
 
     /* High Contrast Mode Overrides */
     html.high-contrast, html.high-contrast body {

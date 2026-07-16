@@ -1,4 +1,14 @@
 import React, { useState, useMemo } from 'react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell
+} from 'recharts';
 import type { PipelineMonth } from '../types';
 
 interface PipelineCalendarProps {
@@ -12,6 +22,23 @@ export const PipelineCalendar: React.FC<PipelineCalendarProps> = ({ data }) => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const totalPages = Math.ceil(data.length / MONTHS_PER_PAGE);
+    
+    const chartData = useMemo(() => {
+        return data.map(item => {
+            let displayName = `${item.month} / ${item.year}`;
+            if (item.month === 'Goiânia') {
+                displayName = 'Goiânia';
+            } else if (item.month === 'Lançamentos Previstos') {
+                displayName = item.year;
+            }
+            return {
+                name: displayName,
+                displayName: displayName,
+                'Eventos': item.events.length,
+            };
+        });
+    }, [data]);
+
     const paginatedData = useMemo(() => {
         const startIndex = (currentPage - 1) * MONTHS_PER_PAGE;
         return data.slice(startIndex, startIndex + MONTHS_PER_PAGE);
@@ -48,14 +75,71 @@ export const PipelineCalendar: React.FC<PipelineCalendarProps> = ({ data }) => {
              
              {isOpen && (
                 <>
+                    {/* Visualização de Carga de Trabalho */}
+                    <div className="mb-10 bg-white/40 border border-sand/40 p-4 md:p-6 rounded-2xl print:hidden">
+                        <h3 className="text-sm font-bold text-stone uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <svg className="w-4 h-4 text-forest" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v5.625C7.5 19.375 6.996 19.5 6.375 19.5h-2.25A1.125 1.125 0 0 1 3 18.375v-5.25zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v10.125c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v14.625c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125z" />
+                            </svg>
+                            Volume de Lançamentos (Eventos por Mês)
+                        </h3>
+                        <div className="h-64 w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#D4D2C6" opacity={0.3} vertical={false} />
+                                    <XAxis 
+                                        dataKey="displayName" 
+                                        stroke="#767469" 
+                                        fontSize={11} 
+                                        tickLine={false} 
+                                        axisLine={{ stroke: '#D4D2C6', strokeWidth: 1 }}
+                                    />
+                                    <YAxis 
+                                        stroke="#767469" 
+                                        fontSize={11} 
+                                        tickLine={false} 
+                                        axisLine={false}
+                                        allowDecimals={false}
+                                    />
+                                    <Tooltip 
+                                        contentStyle={{ 
+                                            backgroundColor: '#ECEBE3', 
+                                            border: '1px solid #D4D2C6', 
+                                            borderRadius: '0.75rem',
+                                            color: '#141A17',
+                                            fontFamily: 'Inter, sans-serif',
+                                            fontSize: '12px',
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                                        }}
+                                        cursor={{ fill: 'rgba(31, 58, 46, 0.04)' }}
+                                    />
+                                    <Bar 
+                                        dataKey="Eventos" 
+                                        fill="#1F3A2E" 
+                                        radius={[6, 6, 0, 0]} 
+                                        maxBarSize={50}
+                                    >
+                                        {chartData.map((entry, index) => (
+                                            <Cell 
+                                                key={`cell-${index}`} 
+                                                fill={entry.Eventos > 0 ? '#1F3A2E' : '#D4D2C6'} 
+                                                opacity={entry.Eventos > 0 ? 0.95 : 0.4}
+                                            />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
                     <div className="space-y-12">
                         {paginatedData.map((item) => {
                             const hasEvents = item.events.length > 0;
                             return (
                                 <div key={`${item.month}-${item.year}`}>
-                                    <div className="flex justify-between items-end border-b border-stone/20 pb-2 mb-6 px-2">
-                                        <span className="text-sm font-bold text-stone tracking-widest uppercase">{item.month}</span>
-                                        <span className="text-xs font-semibold text-sand">{item.year}</span>
+                                    <div className="flex justify-between items-center border-b border-stone/30 pb-2 mb-6 px-2">
+                                        <span className="text-base font-bold text-forest tracking-wider uppercase">{item.month}</span>
+                                        <span className="text-sm font-bold text-ink bg-sand/40 px-2.5 py-1 rounded-lg border border-sand/60 shadow-sm">{item.year}</span>
                                     </div>
 
                                     <div className="flex-grow">

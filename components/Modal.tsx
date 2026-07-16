@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface ModalProps {
     isOpen: boolean;
@@ -8,53 +9,55 @@ interface ModalProps {
 }
 
 export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
-    const [isMounted, setIsMounted] = useState(false);
-
     useEffect(() => {
-        let timeoutId: number;
         if (isOpen) {
-            setIsMounted(true);
             document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
-        } else if (isMounted && !isOpen) {
-            timeoutId = window.setTimeout(() => setIsMounted(false), 300);
+        } else {
             document.body.style.overflow = 'unset';
         }
 
         return () => {
-            clearTimeout(timeoutId);
             document.body.style.overflow = 'unset';
         };
-    }, [isOpen, isMounted]);
-
-    if (!isMounted) {
-        return null;
-    }
+    }, [isOpen]);
 
     return (
-        <div 
-            className={`fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300 ease-in-out ${isOpen ? 'bg-ink/30 backdrop-blur-sm opacity-100' : 'bg-ink/0 backdrop-blur-none opacity-0'} print:absolute print:inset-0 print:block print:bg-transparent print:backdrop-blur-none print:items-start print:p-0`}
-            onClick={onClose}
-            aria-modal="true"
-            role="dialog"
-        >
-            <div 
-                className={`relative flex flex-col bg-bone rounded-2xl sm:rounded-3xl shadow-2xl border border-sand p-5 sm:p-8 w-full max-w-6xl max-h-[100%] sm:max-h-[90vh] transform transition-all duration-300 ease-out ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4'} print:max-h-none print:w-full print:p-0 print:shadow-none print:border-none print:bg-white`}
-                onClick={(e) => e.stopPropagation()}
-            >
-                <div className="flex-shrink-0 flex justify-between items-center mb-6 border-b border-sand/50 pb-4">
-                    <h3 className="text-2xl font-bold text-ink mr-4">{title}</h3>
-                    <button 
-                        onClick={onClose}
-                        className="text-sand hover:text-ink transition-colors text-3xl font-bold leading-none focus:outline-none flex-shrink-0 print:hidden"
-                        aria-label="Close modal"
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-ink/40 backdrop-blur-sm"
+                    onClick={onClose}
+                    aria-modal="true"
+                    role="dialog"
+                >
+                    <motion.div 
+                        initial={{ scale: 0.95, opacity: 0, y: 15 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.95, opacity: 0, y: 15 }}
+                        transition={{ type: "spring", duration: 0.35, bounce: 0.15 }}
+                        className="relative flex flex-col bg-bone rounded-2xl sm:rounded-3xl shadow-2xl border border-sand p-5 sm:p-8 w-full max-w-6xl max-h-[90vh] overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
                     >
-                        &times;
-                    </button>
-                </div>
-                <div className="overflow-y-auto pr-2 custom-scrollbar print:overflow-visible print:h-auto">
-                    {children}
-                </div>
-            </div>
-        </div>
+                        <div className="flex-shrink-0 flex justify-between items-center mb-6 border-b border-sand/50 pb-4">
+                            <h3 className="text-2xl font-bold text-ink mr-4">{title}</h3>
+                            <button 
+                                onClick={onClose}
+                                className="text-sand hover:text-ink transition-colors text-3xl font-bold leading-none focus:outline-none flex-shrink-0 cursor-pointer"
+                                aria-label="Close modal"
+                            >
+                                &times;
+                            </button>
+                        </div>
+                        <div className="overflow-y-auto pr-2 custom-scrollbar flex-grow">
+                            {children}
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 };
